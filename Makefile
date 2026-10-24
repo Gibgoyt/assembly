@@ -3,23 +3,27 @@ AS      := nasm
 ASFLAGS := -f elf64 -g -F dwarf
 LD      := ld
 
-# Add new programs here, e.g.  PROGS := hello loop math
-PROGS   := hello
+# Every .asm file in this folder is a program: hello.asm -> hello
+SRCS    := $(wildcard *.asm)
+PROGS   := $(SRCS:.asm=)
 
 .PHONY: all clean
+.SECONDARY:
 
+# make            -> build every program
 all: $(PROGS)
 
-# Link: hello.o -> hello
+# make hello      -> hello.asm -> hello.o -> hello
 %: %.o
 	$(LD) $< -o $@
 
-# Assemble: hello.asm -> hello.o
 %.o: %.asm
 	$(AS) $(ASFLAGS) $< -o $@
 
-# Keep the .o files instead of letting make delete them
-.SECONDARY: $(PROGS:=.o)
+# make clean-hello -> remove just hello and hello.o
+clean-%:
+	$(if $(filter $*,$(PROGS)),rm -f $* $*.o,@echo "no program called '$*'")
 
+# make clean      -> remove every program and object
 clean:
 	rm -f $(PROGS) $(PROGS:=.o)

@@ -1,2 +1,12 @@
-*.o
-hello
+# Ignore everything...
+*
+
+# ...but still look inside folders
+!*/
+
+# ...and keep these
+!*.asm
+!*.sh
+!*.md
+!Makefile
+!.gitignore
