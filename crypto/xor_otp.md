@@ -147,7 +147,7 @@ copy the byte into `r8`, 2 copies, one per nibble
 
 ### `shr r8d, 4`
 shift right 4 bits, keep high nibble
-$\texttt{0xe2} \gg 4: \; 1110\,0010 \to 0000\,1110 = 14$
+$`\texttt{0xe2} \gg 4: \; 1110\,0010 \to 0000\,1110 = 14`$
 
 ### `mov r8b, [r9 + r8]`
 table lookup, `r8b = hexdigits[14] = 'e'` (0x65). The index `r8` is read first, then its low byte is overwritten with the char (old value not needed any more)
@@ -157,7 +157,7 @@ write 'e' at the cursor (1B because `r8b` is 1B)
 
 ### `and eax, 0x0F`
 keep only low 4b (low nibble)
-$1110\,0010 \mathbin{\&} 0000\,1111 = 0000\,0010 = 2$
+$`1110\,0010 \mathbin{\&} 0000\,1111 = 0000\,0010 = 2`$
 
 ### `mov al, [r9 + rax]`
 table lookup, `al = hexdigits[2] = '2'`
@@ -179,7 +179,7 @@ after the loop, `rdi` points one past the last ' ' (space) so `rdi - 1` is that 
 edge case: if len = 0, `rdi - 1` is the byte before `hexbuf` (last byte of `tmp`), a write outside the buffer. Fine here because len is always 14, but it is a bug in general
 
 ### `lea rsi, [hexbuf]` + `mov rdx, rdi` + `sub rdx, rsi`
-set up `print(rsi = text, rdx = length)`, length = cursor end - start = $14 \times 3 = 42$
+set up `print(rsi = text, rdx = length)`, length = cursor end - start = $`14 \times 3 = 42`$
 
 ### `jmp print`
 tail call (same idea as VJMP)
@@ -194,130 +194,154 @@ tail call (same idea as VJMP)
 ## Notation
 | Symbol | Read as | Meaning |
 |--------|---------|---------|
-| $\forall$ | "for all" | the statement holds for every value |
-| $\in$ | "is an element of" | $A \in S$: $A$ is one of the things in set $S$ |
-| $\{0,1\}$ | "the set 0, 1" | the set of the two bit values |
-| $\{0,1\}^n$ | "zero-one to the n" | the set of **all bit strings of length $n$** |
-| $A_i$ | "A sub i" | bit $i$ of the string $A$ |
-| $\oplus$ | "XOR" | exclusive or (NASM: `xor`) |
-| $\mathbf{0}$ | "bold zero" | the string of $n$ zero bits, $00\ldots0$ |
-| $a \bmod m$ | "a mod m" | the remainder when $a$ is divided by $m$ |
-| $\equiv \pmod m$ | "congruent mod m" | both sides have the same remainder when divided by $m$ |
+| $`\forall`$ | "for all" | the statement holds for every value |
+| $`\in`$ | "is an element of" | $`A \in S`$: $`A`$ is one of the things in set $`S`$ |
+| $`\{0,1\}`$ | "the set 0, 1" | the set of the two bit values |
+| $`\{0,1\}^n`$ | "zero-one to the n" | the set of **all bit strings of length $`n`$** |
+| $`A_i`$ | "A sub i" | bit $`i`$ of the string $`A`$ |
+| $`\oplus`$ | "XOR" | exclusive or (NASM: `xor`) |
+| $`\mathbf{0}`$ | "bold zero" | the string of $`n`$ zero bits, $`00\ldots0`$ |
+| $`a \bmod m`$ | "a mod m" | the remainder when $`a`$ is divided by $`m`$ |
+| $`\equiv \pmod m`$ | "congruent mod m" | both sides have the same remainder when divided by $`m`$ |
 
-## Where $\{0,1\}^n$ comes from
-The exponent on a set means "pick $n$ elements from it, in order". Each pick is one bit, so the result is an $n$-bit string:
+## Where $`\{0,1\}^n`$ comes from
+The exponent on a set means "pick $`n`$ elements from it, in order". Each pick is one bit, so the result is an $`n`$-bit string:
 
-$$\{0,1\}^1 = \{0,\, 1\} \qquad \{0,1\}^2 = \{00,\, 01,\, 10,\, 11\} \qquad \{0,1\}^3 = \{000,\, 001,\, \ldots,\, 111\}$$
+```math
+\{0,1\}^1 = \{0,\, 1\} \qquad \{0,1\}^2 = \{00,\, 01,\, 10,\, 11\} \qquad \{0,1\}^3 = \{000,\, 001,\, \ldots,\, 111\}
+```
 
-Each extra bit doubles the count, so the set has $2^n$ elements. In this program:
+Each extra bit doubles the count, so the set has $`2^n`$ elements. In this program:
 
 | Thing | Set it belongs to |
 |-------|-------------------|
-| one byte, e.g. `0x61` | $\{0,1\}^8$ ($2^8 = 256$ possible values) |
-| a 64-bit register, e.g. `rax` | $\{0,1\}^{64}$ |
-| `key`, `msg1`, `msg2`, `c1`, `c2` (14 bytes each) | $\{0,1\}^{112}$ |
+| one byte, e.g. `0x61` | $`\{0,1\}^8`$ ($`2^8 = 256`$ possible values) |
+| a 64-bit register, e.g. `rax` | $`\{0,1\}^{64}`$ |
+| `key`, `msg1`, `msg2`, `c1`, `c2` (14 bytes each) | $`\{0,1\}^{112}`$ |
 
-So $\forall A, B \in \{0,1\}^n$ reads: "for every pair of bit strings $A$ and $B$, both of length $n$". The properties work for strings of any length, as long as both sides are the same length.
+So $`\forall A, B \in \{0,1\}^n`$ reads: "for every pair of bit strings $`A`$ and $`B`$, both of length $`n`$". The properties work for strings of any length, as long as both sides are the same length.
 
 ## XOR on one bit, defined with mod 2
-$a \bmod 2$ is the remainder after dividing by 2: $0 \bmod 2 = 0$, $1 \bmod 2 = 1$, $2 \bmod 2 = 0$, $3 \bmod 2 = 1$. It's 0 for even numbers and 1 for odd ones.
+$`a \bmod 2`$ is the remainder after dividing by 2: $`0 \bmod 2 = 0`$, $`1 \bmod 2 = 1`$, $`2 \bmod 2 = 0`$, $`3 \bmod 2 = 1`$. It's 0 for even numbers and 1 for odd ones.
 
-For bits $x, y \in \{0,1\}$:
+For bits $`x, y \in \{0,1\}`$:
 
-$$x \oplus y = (x + y) \bmod 2$$
+```math
+x \oplus y = (x + y) \bmod 2
+```
 
-| $x$ | $y$ | $x + y$ | $(x + y) \bmod 2 = x \oplus y$ |
+| $`x`$ | $`y`$ | $`x + y`$ | $`(x + y) \bmod 2 = x \oplus y`$ |
 |-----|-----|---------|--------------------------------|
 | 0 | 0 | 0 | 0 |
 | 0 | 1 | 1 | 1 |
 | 1 | 0 | 1 | 1 |
 | 1 | 1 | 2 | **0** |
 
-XOR is **addition that throws away the carry**. $1 + 1 = 10_2$, keep the 0, drop the carry 1.
+XOR is **addition that throws away the carry**. $`1 + 1 = 10_2`$, keep the 0, drop the carry 1.
 
-The notation $X \oplus Y \equiv X + Y \pmod 2$ is also correct maths: $\equiv$ with $\pmod 2$ at the end says both sides have the same remainder after dividing by 2. For single bits the two forms mean the same thing.
+The notation $`X \oplus Y \equiv X + Y \pmod 2`$ is also correct maths: $`\equiv`$ with $`\pmod 2`$ at the end says both sides have the same remainder after dividing by 2. For single bits the two forms mean the same thing.
 
 ## XOR on strings: bit by bit
-For $A, B \in \{0,1\}^n$, XOR works on each position separately, with no carries between positions:
+For $`A, B \in \{0,1\}^n`$, XOR works on each position separately, with no carries between positions:
 
-$$(A \oplus B)_i = A_i \oplus B_i \qquad \text{for each } i = 0, 1, \ldots, n-1$$
+```math
+(A \oplus B)_i = A_i \oplus B_i \qquad \text{for each } i = 0, 1, \ldots, n-1
+```
 
-$$\begin{array}{lr}
+```math
+\begin{array}{lr}
 A = \texttt{0x61} & 0110\,0001 \\
 B = \texttt{0x83} & 1000\,0011 \\ \hline
 A \oplus B = \texttt{0xe2} & 1110\,0010
-\end{array}$$
+\end{array}
+```
 
-This is why every property below only needs proving for **one bit**: if it holds at every position $i$, it holds for the whole string. One `xor rax, rbx` does this for 64 positions at once.
+This is why every property below only needs proving for **one bit**: if it holds at every position $`i`$, it holds for the whole string. One `xor rax, rbx` does this for 64 positions at once.
 
-## Not the same as $\cup$ (OR)
-$A \cup B$ is set **union**, which matches bitwise **OR** (`or`). It differs from XOR in exactly one row:
+## Not the same as $`\cup`$ (OR)
+$`A \cup B`$ is set **union**, which matches bitwise **OR** (`or`). It differs from XOR in exactly one row:
 
-| $x$ | $y$ | OR $x \lor y$ | XOR $x \oplus y$ |
+| $`x`$ | $`y`$ | OR $`x \lor y`$ | XOR $`x \oplus y`$ |
 |-----|-----|---------------|------------------|
 | 1 | 1 | **1** | **0** |
 
-OR is commutative and associative too, but it is **not** self-inverse: $1 \lor 1 = 1$. So OR can't undo itself, and you can't decrypt with it. That one row is why ciphers use XOR. (The set operation that does match XOR is the **symmetric difference** $A \,\triangle\, B$: the elements in exactly one of the two sets.)
+OR is commutative and associative too, but it is **not** self-inverse: $`1 \lor 1 = 1`$. So OR can't undo itself, and you can't decrypt with it. That one row is why ciphers use XOR. (The set operation that does match XOR is the **symmetric difference** $`A \,\triangle\, B`$: the elements in exactly one of the two sets.)
 
 ## The four properties, proved
 
 ### 1. Identity
-$$\forall A \in \{0,1\}^n, \quad A \oplus \mathbf{0} = A$$
+```math
+\forall A \in \{0,1\}^n, \quad A \oplus \mathbf{0} = A
+```
 
-Per bit: $a \oplus 0 = (a + 0) \bmod 2 = a \bmod 2 = a$, since $a$ is already 0 or 1.
-Example: $\texttt{0x61} \oplus \texttt{0x00} = \texttt{0x61}$
+Per bit: $`a \oplus 0 = (a + 0) \bmod 2 = a \bmod 2 = a`$, since $`a`$ is already 0 or 1.
+Example: $`\texttt{0x61} \oplus \texttt{0x00} = \texttt{0x61}`$
 
 ### 2. Commutativity
-$$\forall A, B \in \{0,1\}^n, \quad A \oplus B = B \oplus A$$
+```math
+\forall A, B \in \{0,1\}^n, \quad A \oplus B = B \oplus A
+```
 
-Per bit: $a \oplus b = (a + b) \bmod 2 = (b + a) \bmod 2 = b \oplus a$, because ordinary addition doesn't care about order.
-Example: $\texttt{0x61} \oplus \texttt{0x83} = \texttt{0x83} \oplus \texttt{0x61} = \texttt{0xe2}$
+Per bit: $`a \oplus b = (a + b) \bmod 2 = (b + a) \bmod 2 = b \oplus a`$, because ordinary addition doesn't care about order.
+Example: $`\texttt{0x61} \oplus \texttt{0x83} = \texttt{0x83} \oplus \texttt{0x61} = \texttt{0xe2}`$
 
 ### 3. Associativity
-$$\forall A, B, C \in \{0,1\}^n, \quad (A \oplus B) \oplus C = A \oplus (B \oplus C)$$
+```math
+\forall A, B, C \in \{0,1\}^n, \quad (A \oplus B) \oplus C = A \oplus (B \oplus C)
+```
 
 Per bit:
 
-$$(a \oplus b) \oplus c = \big((a + b) \bmod 2 + c\big) \bmod 2 = (a + b + c) \bmod 2$$
-$$a \oplus (b \oplus c) = \big(a + (b + c) \bmod 2\big) \bmod 2 = (a + b + c) \bmod 2$$
+```math
+(a \oplus b) \oplus c = \big((a + b) \bmod 2 + c\big) \bmod 2 = (a + b + c) \bmod 2
+```
+```math
+a \oplus (b \oplus c) = \big(a + (b + c) \bmod 2\big) \bmod 2 = (a + b + c) \bmod 2
+```
 
-Both equal $(a + b + c) \bmod 2$. Taking "mod 2" in the middle doesn't change the final answer: it only removes a multiple of 2 (subtracts 2 or 0), and whether the total is even or odd stays the same.
+Both equal $`(a + b + c) \bmod 2`$. Taking "mod 2" in the middle doesn't change the final answer: it only removes a multiple of 2 (subtracts 2 or 0), and whether the total is even or odd stays the same.
 
 So XOR of any number of bits is 1 exactly when an **odd** number of them are 1, whatever the grouping. All 8 cases:
 
-| $a$ | $b$ | $c$ | $(a \oplus b) \oplus c$ | $a \oplus (b \oplus c)$ |
+| $`a`$ | $`b`$ | $`c`$ | $`(a \oplus b) \oplus c`$ | $`a \oplus (b \oplus c)`$ |
 |-----|-----|-----|-------------------------|-------------------------|
-| 0 | 0 | 0 | $0 \oplus 0 = 0$ | $0 \oplus 0 = 0$ |
-| 0 | 0 | 1 | $0 \oplus 1 = 1$ | $0 \oplus 1 = 1$ |
-| 0 | 1 | 0 | $1 \oplus 0 = 1$ | $0 \oplus 1 = 1$ |
-| 0 | 1 | 1 | $1 \oplus 1 = 0$ | $0 \oplus 0 = 0$ |
-| 1 | 0 | 0 | $1 \oplus 0 = 1$ | $1 \oplus 0 = 1$ |
-| 1 | 0 | 1 | $1 \oplus 1 = 0$ | $1 \oplus 1 = 0$ |
-| 1 | 1 | 0 | $0 \oplus 0 = 0$ | $1 \oplus 1 = 0$ |
-| 1 | 1 | 1 | $0 \oplus 1 = 1$ | $1 \oplus 0 = 1$ |
+| 0 | 0 | 0 | $`0 \oplus 0 = 0`$ | $`0 \oplus 0 = 0`$ |
+| 0 | 0 | 1 | $`0 \oplus 1 = 1`$ | $`0 \oplus 1 = 1`$ |
+| 0 | 1 | 0 | $`1 \oplus 0 = 1`$ | $`0 \oplus 1 = 1`$ |
+| 0 | 1 | 1 | $`1 \oplus 1 = 0`$ | $`0 \oplus 0 = 0`$ |
+| 1 | 0 | 0 | $`1 \oplus 0 = 1`$ | $`1 \oplus 0 = 1`$ |
+| 1 | 0 | 1 | $`1 \oplus 1 = 0`$ | $`1 \oplus 1 = 0`$ |
+| 1 | 1 | 0 | $`0 \oplus 0 = 0`$ | $`1 \oplus 1 = 0`$ |
+| 1 | 1 | 1 | $`0 \oplus 1 = 1`$ | $`1 \oplus 0 = 1`$ |
 
-Example: $(\texttt{0x61} \oplus \texttt{0x83}) \oplus \texttt{0x64} = \texttt{0xe2} \oplus \texttt{0x64} = \texttt{0x86}$, and $\texttt{0x61} \oplus (\texttt{0x83} \oplus \texttt{0x64}) = \texttt{0x61} \oplus \texttt{0xe7} = \texttt{0x86}$
+Example: $`(\texttt{0x61} \oplus \texttt{0x83}) \oplus \texttt{0x64} = \texttt{0xe2} \oplus \texttt{0x64} = \texttt{0x86}`$, and $`\texttt{0x61} \oplus (\texttt{0x83} \oplus \texttt{0x64}) = \texttt{0x61} \oplus \texttt{0xe7} = \texttt{0x86}`$
 
 Commutativity + associativity together mean: **in a chain of XORs, order and brackets don't matter**. You can rearrange freely.
 
 ### 4. Self-inversion
-$$\forall A \in \{0,1\}^n, \quad A \oplus A = \mathbf{0}$$
+```math
+\forall A \in \{0,1\}^n, \quad A \oplus A = \mathbf{0}
+```
 
-Per bit: $a \oplus a = (a + a) \bmod 2 = 2a \bmod 2 = 0$, because $2a$ is always even.
-Example: $\texttt{0x83} \oplus \texttt{0x83} = \texttt{0x00}$. In asm: `xor edi, edi` sets `edi` to 0.
+Per bit: $`a \oplus a = (a + a) \bmod 2 = 2a \bmod 2 = 0`$, because $`2a`$ is always even.
+Example: $`\texttt{0x83} \oplus \texttt{0x83} = \texttt{0x00}`$. In asm: `xor edi, edi` sets `edi` to 0.
 
 ### Together: XOR undoes itself
 These four combine into the one fact all of this lesson uses:
 
-$$\forall A, B \in \{0,1\}^n, \quad (A \oplus B) \oplus B = A$$
+```math
+\forall A, B \in \{0,1\}^n, \quad (A \oplus B) \oplus B = A
+```
 
-$$\begin{aligned}
+```math
+\begin{aligned}
 (A \oplus B) \oplus B &= A \oplus (B \oplus B) && \text{associativity} \\
 &= A \oplus \mathbf{0} && \text{self-inversion} \\
 &= A && \text{identity}
-\end{aligned}$$
+\end{aligned}
+```
 
-XOR with $B$ once changes $A$; XOR with $B$ again changes it back.
+XOR with $`B`$ once changes $`A`$; XOR with $`B`$ again changes it back.
 
 ---
 
@@ -334,12 +358,12 @@ Threat model: what the attacker can do. Eve is **passive**: she can read everyth
 Kerckhoffs's principle: Eve knows the algorithm (XOR), the only secret is the key that we used. Real crypto works the same way, AES and ChaCha20 are public standards. If security depended on hiding the algorithm, one leak would break it forever. A key can however be replaced
 
 ## Setup & Definitions
-Let $p_1, p_2, k \in \{0,1\}^n$ be bit strings of equal length $n$ (here $n = 112$, 14 bytes), where:
+Let $`p_1, p_2, k \in \{0,1\}^n`$ be bit strings of equal length $`n`$ (here $`n = 112`$, 14 bytes), where:
 
-- $p_1$ = `msg1` = "attack at dawn", $p_2$ = `msg2` = "defend at dusk"
-- $k$ = `key`, 14 random bytes
-- Encryption of $p_1$: $c_1 = p_1 \oplus k$
-- Encryption of $p_2$: $c_2 = p_2 \oplus k$
+- $`p_1`$ = `msg1` = "attack at dawn", $`p_2`$ = `msg2` = "defend at dusk"
+- $`k`$ = `key`, 14 random bytes
+- Encryption of $`p_1`$: $`c_1 = p_1 \oplus k`$
+- Encryption of $`p_2`$: $`c_2 = p_2 \oplus k`$
 
 ## `_start` Entire Function
 ```nasm
@@ -467,8 +491,10 @@ Two rules for all of `_start`:
 This is a syscall, `rax` = syscall number, `rdi`,`rsi`,`rdx` = syscall args
 `jne` (jump if not equal) catches both a negative error and a short fill with one check, never encrypt with a key that might be partly zeros
 `getrandom()` reads the kernel's CSPRNG (cryptographically secure pseudo-random number generator), the kernel seeds it from unpredictable hardware events, then runs it through crypto. Never make keys from the time or `rand()`
-The key is 14B = 112b, so $k \in \{0,1\}^{112}$ and the number of possible keys is
-$$\left|\{0,1\}^{112}\right| = 2^{112} \approx 5.2 \times 10^{33}$$
+The key is 14B = 112b, so $`k \in \{0,1\}^{112}`$ and the number of possible keys is
+```math
+\left|\{0,1\}^{112}\right| = 2^{112} \approx 5.2 \times 10^{33}
+```
 
 But even attempting to try every key does not get Eve anything, and Step 2 explains why
 
@@ -497,27 +523,33 @@ a  t  t  a  c  k     a  t     d  a  w  n
     call    xor_buf              ; c1 = msg1 ^ key
 ```
 
-$$c_1 = p_1 \oplus k \qquad \text{byte by byte: } c_1[i] = p_1[i] \oplus k[i]$$
+```math
+c_1 = p_1 \oplus k \qquad \text{byte by byte: } c_1[i] = p_1[i] \oplus k[i]
+```
 
 | i | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| $p_1$ | `a` 61 | `t` 74 | `t` 74 | `a` 61 | `c` 63 | `k` 6b | ` ` 20 | `a` 61 | `t` 74 | ` ` 20 | `d` 64 | `a` 61 | `w` 77 | `n` 6e |
-| $k$ | 83 | 6b | 6e | 95 | 5c | 05 | 60 | f5 | 75 | b6 | c4 | 59 | e0 | 21 |
-| $c_1$ | e2 | 1f | 1a | f4 | 3f | 6e | 40 | 94 | 01 | 96 | a0 | 38 | 97 | 4f |
+| $`p_1`$ | `a` 61 | `t` 74 | `t` 74 | `a` 61 | `c` 63 | `k` 6b | ` ` 20 | `a` 61 | `t` 74 | ` ` 20 | `d` 64 | `a` 61 | `w` 77 | `n` 6e |
+| $`k`$ | 83 | 6b | 6e | 95 | 5c | 05 | 60 | f5 | 75 | b6 | c4 | 59 | e0 | 21 |
+| $`c_1`$ | e2 | 1f | 1a | f4 | 3f | 6e | 40 | 94 | 01 | 96 | a0 | 38 | 97 | 4f |
 
 Same letter, different ciphertext: 'a' appears in positions 0, 3, 7, 11, respectively encrypting to `e2`, `f4`, `94`, `38`, since every key byte is different, so the output is different. This kills frequency analysis.
 But yes, yes, I hear you "Ahmed what the fuck is frequency analysis???", for example in English 'e', 't', and 'a' are the most common letters, old ciphers always turn those into the same output, so those ciphers can easily be deciphered by counting, but in this cipher it gives absolutely nada my brada
 it is perfectly secure
 
 What Eve sees:
-$c_1[0] = \texttt{e2}$
-for any plaintext byte $p \in \{0,1\}^8$ she guesses, there is exactly one key byte that would produce it
-$$k[0] = \texttt{e2} \oplus p \qquad \text{check: } p \oplus k[0] = p \oplus (\texttt{e2} \oplus p) = \texttt{e2}$$
+$`c_1[0] = \texttt{e2}`$
+for any plaintext byte $`p \in \{0,1\}^8`$ she guesses, there is exactly one key byte that would produce it
+```math
+k[0] = \texttt{e2} \oplus p \qquad \text{check: } p \oplus k[0] = p \oplus (\texttt{e2} \oplus p) = \texttt{e2}
+```
 
-Since every key byte was equally likely (i.e. defined at step 0, where we made the key), every plaintext is equally likely. Even trying all $2^{112}$ keys is completely useless: some key turns $c_1$ into "attack at dawn", another into "defend at dusk", another into "retreat now!!!", every possible 14B message is in the list, and nothing marks the right one.
+Since every key byte was equally likely (i.e. defined at step 0, where we made the key), every plaintext is equally likely. Even trying all $`2^{112}`$ keys is completely useless: some key turns $`c_1`$ into "attack at dawn", another into "defend at dusk", another into "retreat now!!!", every possible 14B message is in the list, and nothing marks the right one.
 This is known as Shannon's perfect secrecy, a standard of information-theoretic security introduced by mathematician Claude Shannon ("the father of information theory") in 1949. Anthropic's Claude is widely said to be named after him, though Anthropic hasn't officially confirmed it
 
-$$\forall p \in \{0,1\}^n,\ \forall c \in \{0,1\}^n, \quad \Pr[P = p \mid C = c] = \Pr[P = p]$$
+```math
+\forall p \in \{0,1\}^n,\ \forall c \in \{0,1\}^n, \quad \Pr[P = p \mid C = c] = \Pr[P = p]
+```
 
 Seeing the ciphertext does not change what Eve knows about the plaintext, but it is bound by these 3 conditions, if any is broken, then it is no longer perfect
 1. key is truly random
@@ -539,14 +571,16 @@ Seeing the ciphertext does not change what Eve knows about the plaintext, but it
     call    print_text           ; text, not hex: it's readable again
 ```
 
-$$\begin{aligned}
+```math
+\begin{aligned}
 c_1 \oplus k &= (p_1 \oplus k) \oplus k && \text{definition of } c_1 \\
 &= p_1 \oplus (k \oplus k) && \text{associativity} \\
 &= p_1 \oplus \mathbf{0} && \text{self-inversion} \\
 &= p_1 && \text{identity}
-\end{aligned}$$
+\end{aligned}
+```
 
-Byte 0: $\texttt{e2} \oplus \texttt{83} = \texttt{61}$ = a
+Byte 0: $`\texttt{e2} \oplus \texttt{83} = \texttt{61}`$ = a
 This is symmetric encryption, the same key decrypts and encrypts, and `xor_buf` does both
 
 The problem this shows is that Bob needs the exact 14B key, how does Bob get them??? Alice sending them means anybody can see them! This is the **KEY DISTRIBUTION PROBLEM** which asymmetric cryptography solves, that will be covered later
@@ -563,13 +597,15 @@ The problem this shows is that Bob needs the exact 14B key, how does Bob get the
 
 | i | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| $c_1$ | e2 | 1f | 1a | f4 | 3f | 6e | **40** | **94** | **01** | **96** | **a0** | 38 | 97 | 4f |
-| $c_2$ | e7 | 0e | 08 | f0 | 32 | 61 | **40** | **94** | **01** | **96** | **a0** | 2c | 93 | 4a |
+| $`c_1`$ | e2 | 1f | 1a | f4 | 3f | 6e | **40** | **94** | **01** | **96** | **a0** | 38 | 97 | 4f |
+| $`c_2`$ | e7 | 0e | 08 | f0 | 32 | 61 | **40** | **94** | **01** | **96** | **a0** | 2c | 93 | 4a |
 
 Eve learns something before even doing any Math, positions 6 to 10 are identical in both ciphertexts, same key byte and so
-$$c_1[i] = c_2[i] \iff p_1[i] \oplus k[i] = p_2[i] \oplus k[i] \iff p_1[i] = p_2[i]$$
+```math
+c_1[i] = c_2[i] \iff p_1[i] \oplus k[i] = p_2[i] \oplus k[i] \iff p_1[i] = p_2[i]
+```
 
-(the second $\iff$: XOR both sides with $k[i]$, which cancels it by "XOR undoes itself")
+(the second $`\iff`$: XOR both sides with $`k[i]`$, which cancels it by "XOR undoes itself")
 
 She now knows that both messages have the same 5 chars in the middle (i.e. ..." at d"...), so perfect secrecy is already gone
 
@@ -583,9 +619,10 @@ She now knows that both messages have the same 5 chars in the middle (i.e. ..." 
     call    xor_buf              ; tmp = c1 ^ c2
 ```
 
-### The proof: $c_1 \oplus c_2 = p_1 \oplus p_2$
+### The proof: $`c_1 \oplus c_2 = p_1 \oplus p_2`$
 
-$$\begin{aligned}
+```math
+\begin{aligned}
 c_1 \oplus c_2 &= (p_1 \oplus k) \oplus (p_2 \oplus k) && \text{1. substitute } c_1, c_2 \\
 &= p_1 \oplus \big(k \oplus (p_2 \oplus k)\big) && \text{2a. associativity} \\
 &= p_1 \oplus \big((k \oplus p_2) \oplus k\big) && \text{2b. associativity} \\
@@ -593,17 +630,21 @@ c_1 \oplus c_2 &= (p_1 \oplus k) \oplus (p_2 \oplus k) && \text{1. substitute } 
 &= p_1 \oplus \big(p_2 \oplus (k \oplus k)\big) && \text{4. associativity} \\
 &= p_1 \oplus (p_2 \oplus \mathbf{0}) && \text{5. self-inversion: } k \oplus k = \mathbf{0} \\
 &= p_1 \oplus p_2 && \text{6. identity: } p_2 \oplus \mathbf{0} = p_2
-\end{aligned}$$
+\end{aligned}
+```
 
-Step 2 is two uses of associativity: first $(X \oplus Y) \oplus Z = X \oplus (Y \oplus Z)$ with $X = p_1$, $Y = k$, $Z = p_2 \oplus k$, then $Y \oplus (Z_1 \oplus Z_2) = (Y \oplus Z_1) \oplus Z_2$ inside the brackets. The whole proof is just moving the two $k$'s next to each other so self-inversion can delete them.
+Step 2 is two uses of associativity: first $`(X \oplus Y) \oplus Z = X \oplus (Y \oplus Z)`$ with $`X = p_1`$, $`Y = k`$, $`Z = p_2 \oplus k`$, then $`Y \oplus (Z_1 \oplus Z_2) = (Y \oplus Z_1) \oplus Z_2`$ inside the brackets. The whole proof is just moving the two $`k`$'s next to each other so self-inversion can delete them.
 
-**The key cancels out.** The proof holds $\forall p_1, p_2, k \in \{0,1\}^n$, so it's true whatever the key is. Checked on byte 0 of the real run:
+**The key cancels out.** The proof holds $`\forall p_1, p_2, k \in \{0,1\}^n`$, so it's true whatever the key is. Checked on byte 0 of the real run:
 
-$$c_1[0] \oplus c_2[0] = \texttt{e2} \oplus \texttt{e7} = \texttt{05} \qquad p_1[0] \oplus p_2[0] = \texttt{61} \oplus \texttt{64} = \texttt{05}$$
+```math
+c_1[0] \oplus c_2[0] = \texttt{e2} \oplus \texttt{e7} = \texttt{05} \qquad p_1[0] \oplus p_2[0] = \texttt{61} \oplus \texttt{64} = \texttt{05}
+```
 
 and per bit, showing the key bits cancelling:
 
-$$\begin{array}{lr}
+```math
+\begin{array}{lr}
 c_1[0] = \texttt{e2} & 1110\,0010 \\
 c_2[0] = \texttt{e7} & 1110\,0111 \\ \hline
 \texttt{05} & 0000\,0101
@@ -613,7 +654,8 @@ c_2[0] = \texttt{e7} & 1110\,0111 \\ \hline
 p_1[0] = \texttt{61}\ (\texttt{a}) & 0110\,0001 \\
 p_2[0] = \texttt{64}\ (\texttt{d}) & 0110\,0100 \\ \hline
 \texttt{05} & 0000\,0101
-\end{array}$$
+\end{array}
+```
 
 The full result:
 ```text
@@ -630,9 +672,9 @@ p1 XOR p2 : 05 11 12 04 0d 0f 00 00 00 00 00 14 04 05
 
 (the `c2` buffer is reused as scratch here, fine because `c2` isn't needed anymore, `tmp` holds what Step 6 needs)
 
-What Eve can read from $p_1 \oplus p_2$ alone:
-- `00` = same character in both (Step 4's leak, $x \oplus x = 0$)
-- lowercase letters are `0x61`-`0x7a`, their top 3 bits are both `011` and cancel, so two letters XOR to a small value `0x00`-`0x1f`: `05` = `a` $\oplus$ `d`
+What Eve can read from $`p_1 \oplus p_2`$ alone:
+- `00` = same character in both (Step 4's leak, $`x \oplus x = 0`$)
+- lowercase letters are `0x61`-`0x7a`, their top 3 bits are both `011` and cancel, so two letters XOR to a small value `0x00`-`0x1f`: `05` = `a` $`\oplus`$ `d`
 - a space (`0x20` = `0010 0000`) XOR a lowercase letter gives `0x41`-`0x5a`, which stands out, so spaces reveal where words break
 
 Real text has so much structure that this leak alone is usually enough to recover both messages
@@ -652,13 +694,15 @@ Real text has so much structure that this leak alone is usually enough to recove
     call    print_text           ; "defend at dusk"
 ```
 
-$$\begin{aligned}
+```math
+\begin{aligned}
 (c_1 \oplus c_2) \oplus p_1 &= (p_1 \oplus p_2) \oplus p_1 && \text{Step 5 proof} \\
 &= (p_2 \oplus p_1) \oplus p_1 && \text{commutativity} \\
 &= p_2 \oplus (p_1 \oplus p_1) && \text{associativity} \\
 &= p_2 \oplus \mathbf{0} && \text{self-inversion} \\
 &= p_2 && \text{identity}
-\end{aligned}$$
+\end{aligned}
+```
 
 A guessed plaintext is called a **crib**. Real traffic is full of them: `"GET / HTTP/1.1"`, `"<html>"`, file headers, a fixed greeting at the start of every message
 
@@ -670,12 +714,14 @@ every position where the guess is right gives the right letter of message 2 (`de
 
 And it's worse, a correct guess gives the key itself:
 
-$$\begin{aligned}
+```math
+\begin{aligned}
 c_1 \oplus p_1 &= (p_1 \oplus k) \oplus p_1 && \text{definition of } c_1 \\
 &= (k \oplus p_1) \oplus p_1 && \text{commutativity} \\
 &= k \oplus (p_1 \oplus p_1) && \text{associativity} \\
 &= k \oplus \mathbf{0} = k && \text{self-inversion, identity}
-\end{aligned}$$
+\end{aligned}
+```
 
 Now she can read every message ever sent with that key: a **known-plaintext attack**
 
@@ -702,20 +748,24 @@ fail:
 |-----------|---------|---------------------|
 | The algorithm is public; only the key is secret (Kerckhoffs) | `_start` intro | every cipher |
 | Keys come from a CSPRNG, never from time or `rand()` | Step 0 | every key, every nonce |
-| Encrypt = XOR with secret bytes; decrypt = XOR again: $(A \oplus B) \oplus B = A$ | Steps 2-3 | ChaCha20, AES-CTR, AES-GCM all end this way |
+| Encrypt = XOR with secret bytes; decrypt = XOR again: $`(A \oplus B) \oplus B = A`$ | Steps 2-3 | ChaCha20, AES-CTR, AES-GCM all end this way |
 | One-time pad: perfect, but the key must be as long as the data | Step 2 | why we need ciphers that **expand** a short key |
 | Bob needs the same key: key distribution problem | Step 3 | asymmetric crypto, key exchange, TLS handshake |
-| **Never reuse keystream**: $c_1 \oplus c_2 = p_1 \oplus p_2$ | Steps 4-6 | the **nonce** in ChaCha20 / AES-GCM |
+| **Never reuse keystream**: $`c_1 \oplus c_2 = p_1 \oplus p_2`$ | Steps 4-6 | the **nonce** in ChaCha20 / AES-GCM |
 | Attackers know or guess plaintext | Step 6 | ciphers must stay secure even then |
 
-How this becomes a real cipher: a one-time pad needs a key as long as the data. Real stream ciphers generate the "pad" from a short key $k$ and a **nonce** $N$ ("number used once"):
+How this becomes a real cipher: a one-time pad needs a key as long as the data. Real stream ciphers generate the "pad" from a short key $`k`$ and a **nonce** $`N`$ ("number used once"):
 
-$$c = p \oplus \text{ChaCha20}(k, N) \qquad k \in \{0,1\}^{256} \text{ (reused)} \qquad N \in \{0,1\}^{96} \text{ (new every message)}$$
+```math
+c = p \oplus \text{ChaCha20}(k, N) \qquad k \in \{0,1\}^{256} \text{ (reused)} \qquad N \in \{0,1\}^{96} \text{ (new every message)}
+```
 
-Same $k$ with a different $N$ gives a completely different keystream, so Step 5's cancellation never happens. Same $k$ **and** same $N$ twice is exactly the attack in this lesson
+Same $`k`$ with a different $`N`$ gives a completely different keystream, so Step 5's cancellation never happens. Same $`k`$ **and** same $`N`$ twice is exactly the attack in this lesson
 
-Preview, encryption alone doesn't stop tampering: if Eve can *change* ciphertext in transit (an *active* attacker), she can flip plaintext bits without the key. For any $\Delta \in \{0,1\}^n$:
+Preview, encryption alone doesn't stop tampering: if Eve can *change* ciphertext in transit (an *active* attacker), she can flip plaintext bits without the key. For any $`\Delta \in \{0,1\}^n`$:
 
-$$(c \oplus \Delta) \oplus k = (p \oplus k \oplus \Delta) \oplus k = p \oplus \Delta$$
+```math
+(c \oplus \Delta) \oplus k = (p \oplus k \oplus \Delta) \oplus k = p \oplus \Delta
+```
 
-with $\Delta = \texttt{"dawn"} \oplus \texttt{"dusk"}$ on the last 4 bytes, Bob decrypts "attack at dusk". Stopping that needs a **MAC** (message authentication code), the job of GHASH and Poly1305 in the transcript
+with $`\Delta = \texttt{"dawn"} \oplus \texttt{"dusk"}`$ on the last 4 bytes, Bob decrypts "attack at dusk". Stopping that needs a **MAC** (message authentication code), the job of GHASH and Poly1305 in the transcript
